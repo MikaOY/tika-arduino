@@ -18,13 +18,16 @@
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
+#include <Servo.h>
 
   #include <CurieBLE.h>
   #include <BLEPeripheral.h>
   #include "BLESerial.h"
 
   BLESerial ble = BLESerial();
-
+Servo lServo;
+Servo rServo;
+int pos = 0;
 
 // Create the motor shield object with the default I2C address
 Adafruit_MotorShield AFMS = Adafruit_MotorShield(); 
@@ -67,20 +70,27 @@ void setup(void)
   //while (!Serial);// For use only while plugged into USB an with Serial Monitor open
   AFMS.begin();  // create with the default frequency 1.6KHz
 
-  // turn off both motors
-  L_MOTOR->setSpeed(0);
-  R_MOTOR->setSpeed(0);
-  L_MOTOR->run(RELEASE);
-  R_MOTOR->run(RELEASE);
+//  // turn off both motors
+//  L_MOTOR->setSpeed(0);
+//  R_MOTOR->setSpeed(0);
+//  L_MOTOR->run(RELEASE);
+//  R_MOTOR->run(RELEASE);
     
   Serial.begin(115200);
   Serial.println(F("Adafruit Bluefruit Robot Controller Example"));
   Serial.println(F("-----------------------------------------"));
 
   /* Initialize the module */
-  BLEsetup();
-  
+  // using Curie
+  ble.setLocalName("CurieBot");
+  ble.begin();
 
+  delay(500); 
+
+  lServo.attach(9);
+  lServo.write(100); 
+  rServo.attach(10);
+  rServo.write(100);
 }
 
 int velocity = 0;
@@ -93,9 +103,11 @@ int R_restrict = 0;
 unsigned long lastAccelPacket = 0;
 
 bool modeToggle = false;
+bool done = false;
 
 void loop(void)
 {
+  
   // read new packet data
   uint8_t len = readPacket(&ble, BLE_READPACKET_TIMEOUT);
   if (len == 0) return;
@@ -252,14 +264,6 @@ bool buttonMode(){
   }
 
   return false;
-
-}
-
-void BLEsetup() {
-  // using Curie
-  ble.setLocalName("CurieBot");
-  ble.begin();
-  
 
 }
 
