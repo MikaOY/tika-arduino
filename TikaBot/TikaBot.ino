@@ -20,11 +20,11 @@
 #include <Adafruit_MotorShield.h>
 #include <Servo.h>
 
-  #include <CurieBLE.h>
-  #include <BLEPeripheral.h>
-  #include "BLESerial.h"
+#include <CurieBLE.h>
+#include <BLEPeripheral.h>
+#include "BLESerial.h"
 
-  BLESerial ble = BLESerial();
+BLESerial ble = BLESerial();
 Servo lServo;
 Servo rServo;
 int pos = 0;
@@ -88,10 +88,9 @@ void setup(void)
   delay(500); 
 
 //  lServo.attach(9);
-//  lServo.write(100); 
 //  rServo.attach(10);
-//  rServo.write(100);
 
+  // debug LED
   pinMode(13, OUTPUT);
 }
 
