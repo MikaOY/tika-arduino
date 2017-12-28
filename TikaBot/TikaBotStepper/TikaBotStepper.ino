@@ -18,6 +18,7 @@
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
+#include <Servo.h>
 
   #include <CurieBLE.h>
   #include <BLEPeripheral.h>
@@ -33,13 +34,9 @@ Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 // to motor port #2 (M3 and M4)
 Adafruit_StepperMotor *myMotor = AFMS.getStepper(200, 2);
 
-//// And connect 2 DC motors to port M1 & M2 !
-//Adafruit_DCMotor *L_MOTOR = AFMS.getMotor(1);
-//Adafruit_DCMotor *R_MOTOR = AFMS.getMotor(2);
-
-//not used, testing acceleration
-// int accelTime = 200;
-
+// Create servo
+Servo myServo;
+int pos = 0;
 
 #define BLUETOOTH_NAME                 "CurieBot" //Name your RC here
 #define BLE_READPACKET_TIMEOUT         500   // Timeout in ms waiting to read a response
@@ -76,7 +73,8 @@ void setup(void)
   Serial.begin(115200);
   Serial.println(F("Adafruit Bluefruit Robot Controller Example"));
   Serial.println(F("-----------------------------------------"));
-
+  
+  myServo.attach(9);
   /* Initialize the module */
   BLEsetup();
   
@@ -118,16 +116,31 @@ bool buttonMode(){
 
     Serial.print("Button #"); Serial.print(buttnum);
     if (pressed) 
+      {
       Serial.println(" pressed");
-    else
+      pos += 1;
+      myServo.write(pos);
+      }
+    else {
       Serial.println(" released");
-    //Serial.println(isMoving);
+
+    }
     
     if (pressed) {
       isMoving = true;
-      if(buttnum == 5){
+      if(buttnum == 1){
+        Serial.print("Gonna move servo");
           myMotor->step(100, FORWARD, SINGLE); 
-  
+//          for(pos = 0; pos <= 180; pos += 1) // goes from 0 degrees to 180 degrees
+//            {                                  // in steps of 1 degree
+//              myServo.write(pos);              // tell servo to go to position in variable 'pos'
+//              delay(15);                       // waits 15ms for the servo to reach the position
+//            }
+//          for(pos = 180; pos>=0; pos-=1)     // goes from 180 degrees to 0 degrees
+//            {
+//              myServo.write(pos);              // tell servo to go to position in variable 'pos'
+//              delay(15);                       // waits 15ms for the servo to reach the position
+//            }
       }
       if(buttnum == 6){
         myMotor->step(100, BACKWARD, SINGLE); 
