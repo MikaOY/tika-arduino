@@ -20,11 +20,11 @@
 #include <Adafruit_MotorShield.h>
 #include <Servo.h>
 
-  #include <CurieBLE.h>
-  #include <BLEPeripheral.h>
-  #include "BLESerial.h"
+#include <CurieBLE.h>
+#include <BLEPeripheral.h>
+#include "BLESerial.h"
 
-  BLESerial ble = BLESerial();
+BLESerial ble = BLESerial();
 Servo lServo;
 Servo rServo;
 int pos = 0;
@@ -40,7 +40,7 @@ Adafruit_DCMotor *R_MOTOR = AFMS.getMotor(2);
 // int accelTime = 200;
 
 
-#define BLUETOOTH_NAME                 "CurieBot" //Name your RC here
+#define BLUETOOTH_NAME                 "TikaBot" //Name your RC here
 #define BLE_READPACKET_TIMEOUT         500   // Timeout in ms waiting to read a response
 
 // A small helper
@@ -82,15 +82,16 @@ void setup(void)
 
   /* Initialize the module */
   // using Curie
-  ble.setLocalName("CurieBot");
+  ble.setLocalName("TikaBot");
   ble.begin();
 
   delay(500); 
 
-  lServo.attach(9);
-  lServo.write(100); 
-  rServo.attach(10);
-  rServo.write(100);
+//  lServo.attach(9);
+//  rServo.attach(10);
+
+  // debug LED
+  pinMode(13, OUTPUT);
 }
 
 int velocity = 0;
@@ -216,11 +217,15 @@ bool buttonMode(){
     boolean pressed = packetbuffer[3] - '0';
 
     Serial.print("Button #"); Serial.print(buttnum);
-    if (pressed) 
+    if (pressed) {
+      digitalWrite(13, HIGH);             
       Serial.println(" pressed");
-    else
+    }
+    else {
+      digitalWrite(13, LOW);
       Serial.println(" released");
     //Serial.println(isMoving);
+    }
     
     if (pressed) {
       isMoving = true;
