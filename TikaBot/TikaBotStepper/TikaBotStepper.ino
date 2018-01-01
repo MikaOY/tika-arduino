@@ -20,11 +20,11 @@
 #include <Adafruit_MotorShield.h>
 #include <Servo.h>
 
-#include <CurieBLE.h>
-#include <BLEPeripheral.h>
-#include "BLESerial.h"
+  #include <CurieBLE.h>
+  #include <BLEPeripheral.h>
+  #include "BLESerial.h"
 
-BLESerial ble = BLESerial();
+  BLESerial ble = BLESerial();
 
 
 // Create the motor shield object with the default I2C address
@@ -35,10 +35,8 @@ Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 Adafruit_StepperMotor *myMotor = AFMS.getStepper(200, 2);
 
 // Create servo
-Servo leftServo;
-Servo rightServo;
-int leftPos = 0;
-int rightPos = 0;
+Servo myServo;
+int pos = 0;
 
 #define BLUETOOTH_NAME                 "CurieBot" //Name your RC here
 #define BLE_READPACKET_TIMEOUT         500   // Timeout in ms waiting to read a response
@@ -76,11 +74,11 @@ void setup(void)
   Serial.println(F("Adafruit Bluefruit Robot Controller Example"));
   Serial.println(F("-----------------------------------------"));
   
-  leftServo.attach(9);
-  rightServo.attach(10);
-  
+  myServo.attach(9);
   /* Initialize the module */
   BLEsetup();
+  
+
 }
 
 int velocity = 0;
@@ -102,6 +100,7 @@ void loop(void)
 
   // always use buttonMode
   buttonMode();
+
 }
 
 
@@ -117,33 +116,36 @@ bool buttonMode(){
 
     Serial.print("Button #"); Serial.print(buttnum);
     if (pressed) 
-      {
       Serial.println(" pressed");
-      }
-    else {
+    else
       Serial.println(" released");
-    }
+    //Serial.println(isMoving);
     
     if (pressed) {
       isMoving = true;
-      if(buttnum == 5){
-        
-        // move forward
-        leftPos += 1;
-        rightPos += 1;
-        leftServo.write(leftPos);
-        rightServo.write(rightPos);
-        delay(15);
+      if(buttnum == 1){
+        Serial.print("Gonna move servo");
+          myMotor->step(100, FORWARD, SINGLE); 
+          for(pos = 0; pos <= 180; pos += 1) // goes from 0 degrees to 180 degrees
+            {                                  // in steps of 1 degree
+              myServo.write(pos);              // tell servo to go to position in variable 'pos'
+              delay(15);                       // waits 15ms for the servo to reach the position
+            }
+          for(pos = 180; pos>=0; pos-=1)     // goes from 180 degrees to 0 degrees
+            {
+              myServo.write(pos);              // tell servo to go to position in variable 'pos'
+              delay(15);                       // waits 15ms for the servo to reach the position
+            }
       }
       if(buttnum == 6){
-
+        myMotor->step(100, BACKWARD, SINGLE); 
       }
       if(buttnum == 7){
-
+        myMotor->step(50, FORWARD, MICROSTEP); 
   
       }
       if(buttnum == 8){
-   
+        myMotor->step(50, BACKWARD, MICROSTEP);       
       }
 
       lastPress = millis();
@@ -163,6 +165,8 @@ void BLEsetup() {
   // using Curie
   ble.setLocalName("CurieBot");
   ble.begin();
+  
+
 }
 
 
