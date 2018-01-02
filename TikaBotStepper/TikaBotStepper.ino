@@ -98,7 +98,10 @@ void loop(void)
 {
   // read new packet data
   uint8_t len = readPacket(&ble, BLE_READPACKET_TIMEOUT);
-  if (len == 0) return;
+  if (len == 0) {
+
+    return;
+  }
 
   // always use buttonMode
   buttonMode();
@@ -127,13 +130,15 @@ bool buttonMode(){
     if (pressed) {
       isMoving = true;
       if(buttnum == 5){
-        
-        // move forward
-        leftPos += 1;
-        rightPos += 1;
-        leftServo.write(leftPos);
-        rightServo.write(rightPos);
-        delay(15);
+
+          Serial.print("moving" + leftPos);
+          // move forward
+          leftPos += 10;
+          rightPos += 10;
+          leftServo.write(leftPos);
+          rightServo.write(rightPos);
+          delay(15);
+
       }
       if(buttnum == 6){
 
