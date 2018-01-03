@@ -32,13 +32,9 @@ Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 
 // Connect a stepper motor with 200 steps per revolution (1.8 degree)
 // to motor port #2 (M3 and M4)
-Adafruit_StepperMotor *myMotor = AFMS.getStepper(200, 2);
+Adafruit_StepperMotor *leftMotor = AFMS.getStepper(200, 1);
+Adafruit_StepperMotor *rightMotor = AFMS.getStepper(200, 2);
 
-// Create servo
-Servo leftServo;
-Servo rightServo;
-int leftPos = 0;
-int rightPos = 0;
 
 #define BLUETOOTH_NAME                 "CurieBot" //Name your RC here
 #define BLE_READPACKET_TIMEOUT         500   // Timeout in ms waiting to read a response
@@ -70,14 +66,12 @@ void setup(void)
  
   AFMS.begin();  // create with the default frequency 1.6KHz
 
-  myMotor->setSpeed(20);  // 10 rpm   
+  leftMotor->setSpeed(20);
+  rightMotor->setSpeed(20);  // 20 rpm   
     
   Serial.begin(115200);
   Serial.println(F("Adafruit Bluefruit Robot Controller Example"));
   Serial.println(F("-----------------------------------------"));
-  
-  leftServo.attach(9);
-  rightServo.attach(10);
   
   /* Initialize the module */
   BLEsetup();
@@ -93,14 +87,14 @@ int R_restrict = 0;
 unsigned long lastAccelPacket = 0;
 
 bool modeToggle = false;
-
+bool isEmpty = false;
 void loop(void)
 {
   // read new packet data
   uint8_t len = readPacket(&ble, BLE_READPACKET_TIMEOUT);
   if (len == 0) {
-
-    return;
+    isEmpty = true;
+    //return;
   }
 
   // always use buttonMode
@@ -110,34 +104,32 @@ void loop(void)
 
 bool isMoving = false;
 unsigned long lastPress = 0;
-
+ uint8_t buttnum;
+ boolean pressed;
+ 
 bool buttonMode(){
-
+  Serial.println(isMoving);
    // Buttons
-  if (packetbuffer[1] == 'B') {
-    uint8_t buttnum = packetbuffer[2] - '0';
-    boolean pressed = packetbuffer[3] - '0';
 
+    if (packetbuffer[1] == 'B') {
+      Serial.println("b");
+     buttnum = packetbuffer[2] - '0';
+     pressed = packetbuffer[3] - '0';
+   }
     Serial.print("Button #"); Serial.print(buttnum);
     if (pressed) 
       {
-      Serial.println(" pressed");
+        Serial.println(" pressed");
+        isMoving = true;
       }
     else {
       Serial.println(" released");
+      isMoving = false;
     }
     
-    if (pressed) {
-      isMoving = true;
-      if(buttnum == 5){
-
-          Serial.print("moving" + leftPos);
-          // move forward
-          leftPos += 10;
-          rightPos += 10;
-          leftServo.write(leftPos);
-          rightServo.write(rightPos);
-          delay(15);
+    if (isMoving == true) {
+      if(buttnum == 5){ // up arrow
+        rightMotor->run(FORWARD); 
 
       }
       if(buttnum == 6){
@@ -158,7 +150,7 @@ bool buttonMode(){
       
     }
      return true; 
-  }
+ // }
 
   return false;
 
