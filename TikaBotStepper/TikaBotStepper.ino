@@ -18,7 +18,10 @@
 #include <SPI.h>
 #include <Wire.h>
 #include <Adafruit_MotorShield.h>
-#include <Servo.h>
+
+// From the AccelStepper Library
+#include <AccelStepper.h>
+#include "utility/Adafruit_MS_PWMServoDriver.h"
 
 #include <CurieBLE.h>
 #include <BLEPeripheral.h>
@@ -37,7 +40,7 @@ Adafruit_StepperMotor *rightMotor = AFMS.getStepper(200, 2);
 
 
 #define BLUETOOTH_NAME                 "CurieBot" //Name your RC here
-#define BLE_READPACKET_TIMEOUT         500   // Timeout in ms waiting to read a response
+#define BLE_READPACKET_TIMEOUT         10   // Timeout in ms waiting to read a response
 
 // A small helper
 void error(const __FlashStringHelper*err) {
@@ -55,6 +58,24 @@ extern uint8_t packetbuffer[];
 
 char buf[60];
 
+/************************* ACCEL SETUP *********************************/
+void forwardstepLeft() {  
+  leftMotor->step(5, FORWARD, SINGLE);
+}
+void backwardstepLeft() {  
+  leftMotor->step(5, BACKWARD, SINGLE);
+}
+
+void forwardstepRight() {  
+  rightMotor->step(5, FORWARD, DOUBLE);
+}
+void backwardstepRight() {  
+  rightMotor->step(5, BACKWARD, DOUBLE);
+}
+
+AccelStepper stepperLeft(forwardstepLeft, backwardstepLeft);
+AccelStepper stepperRight(forwardstepRight, backwardstepRight);
+
 /**************************************************************************/
 /*!
     @brief  Sets up the HW an the BLE module (this function is called
@@ -66,8 +87,13 @@ void setup(void)
  
   AFMS.begin();  // create with the default frequency 1.6KHz
 
-  leftMotor->setSpeed(20);
-  rightMotor->setSpeed(20);  // 20 rpm   
+  stepperLeft.setMaxSpeed(200.0);
+  stepperLeft.setAcceleration(100.0);
+  stepperLeft.moveTo(24);
+
+  stepperRight.setMaxSpeed(200.0);
+  stepperRight.setAcceleration(100.0);
+  stepperRight.moveTo(24);
     
   Serial.begin(115200);
   Serial.println(F("Adafruit Bluefruit Robot Controller Example"));
@@ -88,6 +114,9 @@ unsigned long lastAccelPacket = 0;
 
 bool modeToggle = false;
 bool isEmpty = false;
+
+
+
 void loop(void)
 {
   // read new packet data
@@ -129,8 +158,9 @@ bool buttonMode(){
     
     if (isMoving == true) {
       if(buttnum == 5){ // up arrow
-        rightMotor->run(FORWARD); 
-
+        stepperRight.run();
+        stepperLeft.run();
+      
       }
       if(buttnum == 6){
 
