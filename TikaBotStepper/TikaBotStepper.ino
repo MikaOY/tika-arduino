@@ -40,7 +40,7 @@ Adafruit_StepperMotor *rightMotor = AFMS.getStepper(200, 2);
 
 
 #define BLUETOOTH_NAME                 "CurieBot" //Name your RC here
-#define BLE_READPACKET_TIMEOUT         10   // Timeout in ms waiting to read a response
+#define BLE_READPACKET_TIMEOUT         5   // Timeout in ms waiting to read a response
 
 // A small helper
 void error(const __FlashStringHelper*err) {
@@ -60,17 +60,17 @@ char buf[60];
 
 /************************* ACCEL SETUP *********************************/
 void forwardstepLeft() {  
-  leftMotor->step(5, FORWARD, SINGLE);
+  leftMotor->onestep(FORWARD, SINGLE);
 }
 void backwardstepLeft() {  
-  leftMotor->step(5, BACKWARD, SINGLE);
+  leftMotor->onestep(BACKWARD, SINGLE);
 }
 
 void forwardstepRight() {  
-  rightMotor->step(5, FORWARD, DOUBLE);
+  rightMotor->onestep(FORWARD, SINGLE);
 }
 void backwardstepRight() {  
-  rightMotor->step(5, BACKWARD, DOUBLE);
+  rightMotor->onestep(BACKWARD, SINGLE);
 }
 
 AccelStepper stepperLeft(forwardstepLeft, backwardstepLeft);
@@ -87,13 +87,11 @@ void setup(void)
  
   AFMS.begin();  // create with the default frequency 1.6KHz
 
-  stepperLeft.setMaxSpeed(200.0);
-  stepperLeft.setAcceleration(100.0);
-  stepperLeft.moveTo(24);
+  stepperLeft.setMaxSpeed(1600.0);
+  stepperLeft.setAcceleration(1200.0);
 
-  stepperRight.setMaxSpeed(200.0);
-  stepperRight.setAcceleration(100.0);
-  stepperRight.moveTo(24);
+  stepperRight.setMaxSpeed(1600.0);
+  stepperRight.setAcceleration(1200.0);
     
   Serial.begin(115200);
   Serial.println(F("Adafruit Bluefruit Robot Controller Example"));
@@ -114,8 +112,6 @@ unsigned long lastAccelPacket = 0;
 
 bool modeToggle = false;
 bool isEmpty = false;
-
-
 
 void loop(void)
 {
@@ -158,19 +154,30 @@ bool buttonMode(){
     
     if (isMoving == true) {
       if(buttnum == 5){ // up arrow
-        stepperRight.run();
-        stepperLeft.run();
+        stepperLeft.setSpeed(-400);
+        stepperRight.setSpeed(-6000);
+        stepperRight.runSpeed();
+        stepperLeft.runSpeed();
       
       }
-      if(buttnum == 6){
-
+      if(buttnum == 6){ // down
+        stepperLeft.move(5);
+        stepperRight.move(5);
+        stepperRight.run();
+        stepperLeft.run();
       }
-      if(buttnum == 7){
-
+      if(buttnum == 7){ // left
+        stepperLeft.move(5);
+        stepperRight.move(-5);
+        stepperRight.run();
+        stepperLeft.run();
   
       }
-      if(buttnum == 8){
-   
+      if(buttnum == 8){ // right
+        stepperLeft.move(-5);
+        stepperRight.move(5);
+        stepperRight.run();
+        stepperLeft.run();
       }
 
       lastPress = millis();
