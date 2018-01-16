@@ -153,31 +153,32 @@ bool buttonMode(){
     }
     
     if (isMoving == true) {
-      if(buttnum == 5){ // up arrow
-        stepperLeft.setSpeed(-400);
-        stepperRight.setSpeed(-6000);
+      if(buttnum == 5){ // up
+        stepperLeft.setSpeed(400);
+        stepperRight.setSpeed(-400);
         stepperRight.runSpeed();
         stepperLeft.runSpeed();
-      
+        
       }
       if(buttnum == 6){ // down
-        stepperLeft.move(5);
-        stepperRight.move(5);
-        stepperRight.run();
-        stepperLeft.run();
+        stepperLeft.setSpeed(-400);
+        stepperRight.setSpeed(400);
+        stepperRight.runSpeed();
+        stepperLeft.runSpeed();
       }
       if(buttnum == 7){ // left
-        stepperLeft.move(5);
-        stepperRight.move(-5);
-        stepperRight.run();
-        stepperLeft.run();
+        stepperLeft.setSpeed(-400);
+        stepperRight.setSpeed(-400);
+        stepperRight.runSpeed();
+        stepperLeft.runSpeed();
   
       }
       if(buttnum == 8){ // right
-        stepperLeft.move(-5);
-        stepperRight.move(5);
-        stepperRight.run();
-        stepperLeft.run();
+        stepperLeft.setSpeed(400);
+        stepperRight.setSpeed(400);
+        stepperRight.runSpeed();
+        stepperLeft.runSpeed();
+        
       }
 
       lastPress = millis();
@@ -187,7 +188,6 @@ bool buttonMode(){
       
     }
      return true; 
- // }
 
   return false;
 
