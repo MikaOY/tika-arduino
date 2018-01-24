@@ -60,17 +60,17 @@ char buf[60];
 
 /************************* ACCEL SETUP *********************************/
 void forwardstepLeft() {  
-  leftMotor->onestep(FORWARD, SINGLE);
+  leftMotor->onestep(FORWARD, DOUBLE);
 }
 void backwardstepLeft() {  
-  leftMotor->onestep(BACKWARD, SINGLE);
+  leftMotor->onestep(BACKWARD, DOUBLE);
 }
 
 void forwardstepRight() {  
-  rightMotor->onestep(FORWARD, SINGLE);
+  rightMotor->onestep(FORWARD, DOUBLE);
 }
 void backwardstepRight() {  
-  rightMotor->onestep(BACKWARD, SINGLE);
+  rightMotor->onestep(BACKWARD, DOUBLE);
 }
 
 AccelStepper stepperLeft(forwardstepLeft, backwardstepLeft);
